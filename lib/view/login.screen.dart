@@ -51,7 +51,7 @@ class LoginScreen extends StatelessWidget {
                     // TODO: 로그인 및 세션 생성
                     context.go('/');
                   },
-                  style: ElevatedButton.styleFrom(
+                  style: FilledButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(

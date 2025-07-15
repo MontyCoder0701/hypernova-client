@@ -11,7 +11,6 @@ class HomeScreen extends StatelessWidget {
     final days = List.generate(14, (index) => today.add(Duration(days: index)));
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [

@@ -6,22 +6,49 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final schedules = List.generate(10, (index) {
+      return {
+        'days': ['월', '수', '금'].sublist(0, (index % 3) + 1),
+        'time': '오후 ${10 + index % 3}:${(30 + index * 3) % 60}'.padLeft(2, '0'),
+      };
+    });
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text('전화', style: TextStyle(color: Colors.black)),
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('언제 전화할까요?'),
-            SizedBox(height: 8),
-            Text('아래 추가 버튼을 누르고\n전화 시간을 설정해주세요'),
-          ],
+      appBar: AppBar(elevation: 0, centerTitle: true, title: const Text('전화')),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: ListView.separated(
+          itemCount: schedules.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final item = schedules[index];
+            final days = item['days'] as List<String>;
+            final time = item['time'] as String;
+
+            return Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F7F7),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                title: Text(days.join(',')),
+                subtitle: Text(time),
+                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => const AddCallBottomSheet(),
+                  );
+                },
+              ),
+            );
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton(

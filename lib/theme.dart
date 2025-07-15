@@ -10,7 +10,7 @@ class CustomTheme {
       onSecondary: Colors.black,
       error: Colors.red,
       onError: Colors.black,
-      surface: Colors.grey,
+      surface: Colors.white,
       onSurface: Colors.black,
     ),
   );

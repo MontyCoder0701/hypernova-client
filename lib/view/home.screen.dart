@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,7 +23,9 @@ class HomeScreen extends StatelessWidget {
                   IconButton(onPressed: () {}, icon: const Icon(Icons.logout)),
                   const Text('2025년 6월'),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.push('/settings');
+                    },
                     icon: const Icon(Icons.settings),
                   ),
                 ],

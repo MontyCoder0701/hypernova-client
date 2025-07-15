@@ -2,19 +2,13 @@ import 'package:go_router/go_router.dart';
 
 import 'view/home.screen.dart';
 import 'view/login.screen.dart';
+import 'view/settings.screen.dart';
 
 final goRouter = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/',
   routes: [
-    GoRoute(
-      path: '/login',
-      pageBuilder: (context, state) =>
-          const NoTransitionPage(child: LoginScreen()),
-    ),
-    GoRoute(
-      path: '/',
-      pageBuilder: (context, state) =>
-          const NoTransitionPage(child: HomeScreen()),
-    ),
+    GoRoute(path: '/', builder: (context, state) => HomeScreen()),
+    GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
+    GoRoute(path: '/settings', builder: (context, state) => SettingsScreen()),
   ],
 );

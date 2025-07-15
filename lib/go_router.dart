@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 
-import 'login.screen.dart';
+import 'view/login.screen.dart';
 
 final goRouter = GoRouter(
   initialLocation: '/login',

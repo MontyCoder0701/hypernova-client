@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '/login.screen.dart';
+import 'go_router.dart';
+import 'theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,12 +12,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const LoginScreen(),
+    return MaterialApp.router(
+      title: 'Hypernova Client',
+      theme: CustomTheme.light,
+      routerConfig: goRouter,
     );
   }
 }

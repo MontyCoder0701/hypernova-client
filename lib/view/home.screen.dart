@@ -20,7 +20,13 @@ class HomeScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.logout)),
+                  IconButton(
+                    onPressed: () {
+                      // TODO: 로그아웃 및 세션 초기화
+                      context.go('/login');
+                    },
+                    icon: const Icon(Icons.logout),
+                  ),
                   const Text('2025년 6월'),
                   IconButton(
                     onPressed: () {

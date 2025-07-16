@@ -5,9 +5,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 
-// TODO: move into separate layer
-final storage = FlutterSecureStorage();
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -27,6 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // TODO: move method into separate layer
   Future<void> _login(BuildContext context) async {
+    final storage = FlutterSecureStorage();
+
     if (!_formKey.currentState!.validate()) {
       return;
     }

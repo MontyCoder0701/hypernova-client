@@ -16,6 +16,14 @@ final goRouter = GoRouter(
   redirect: (BuildContext context, GoRouterState state) async {
     final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'access_token');
-    return token != null ? '/' : '/login';
+    final isGoingToLogin = state.uri.toString() == '/login';
+
+    if (token == null && !isGoingToLogin) {
+      return '/login';
+    }
+    if (token != null && isGoingToLogin) {
+      return '/';
+    }
+    return null;
   },
 );

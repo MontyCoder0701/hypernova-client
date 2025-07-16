@@ -73,6 +73,7 @@ class ScheduleService {
     );
   }
 
+  // TODO: delete all related schedules in server
   static Future<void> deleteOne(int scheduleId) async {
     await _http.delete('$path/$scheduleId');
   }

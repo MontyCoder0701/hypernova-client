@@ -87,6 +87,7 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
               const SizedBox(height: 24),
               const Text('반복'),
               const SizedBox(height: 12),
+              // TODO: add validation (one schedule per day)
               Wrap(
                 spacing: 8,
                 children: List.generate(weekdays.length, (index) {

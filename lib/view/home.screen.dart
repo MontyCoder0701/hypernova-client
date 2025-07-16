@@ -97,7 +97,12 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.logout),
-          onPressed: () {
+          onPressed: () async {
+            final storage = FlutterSecureStorage();
+            await storage.delete(key: 'access_token');
+            if (!context.mounted) {
+              return;
+            }
             context.go('/login');
           },
         ),

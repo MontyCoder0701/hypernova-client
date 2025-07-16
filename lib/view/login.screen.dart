@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '/service/auth.service.dart';
+import '../service/auth.service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -56,7 +56,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: TextFormField(
                   controller: _controller,
                   decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(vertical: 12),
                     border: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.grey),
                     ),
@@ -76,21 +75,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
               child: SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
                   onPressed: () => _handleLogin(context),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                  ),
                   child: const Text('시작하기'),
                 ),
               ),

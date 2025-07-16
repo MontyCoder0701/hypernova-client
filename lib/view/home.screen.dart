@@ -25,8 +25,6 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.logout),
           onPressed: () => _handleLogout(context),
@@ -52,8 +50,7 @@ class HomeScreen extends StatelessWidget {
 
           return ListView.separated(
             itemCount: days.length,
-            separatorBuilder: (_, __) =>
-                const Divider(height: 1, color: Color(0xFFE0E0E0)),
+            separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final day = days[index];
 

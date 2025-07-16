@@ -70,10 +70,8 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                   return ChoiceChip(
                     label: Text(weekdays[index]),
                     selected: selected,
-                    selectedColor: Colors.black,
                     labelStyle: TextStyle(
                       color: selected ? Colors.white : Colors.black,
-                      fontWeight: FontWeight.w500,
                     ),
                     onSelected: (bool value) {
                       setState(() {
@@ -102,13 +100,6 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                     }
                     Navigator.pop(context);
                   },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                  ),
                   child: const Text('저장'),
                 ),
               ),

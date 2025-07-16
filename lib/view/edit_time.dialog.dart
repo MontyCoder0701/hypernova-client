@@ -70,17 +70,23 @@ class _EditTimeDialogState extends State<EditTimeDialog> {
                 },
               ),
             ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await widget.onSave(widget.schedule, widget.day, selectedTime);
-              },
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
-                backgroundColor: Colors.black,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: FilledButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await widget.onSave(
+                      widget.schedule,
+                      widget.day,
+                      selectedTime,
+                    );
+                  },
+                  child: const Text('저장'),
+                ),
               ),
-              child: const Text('저장', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

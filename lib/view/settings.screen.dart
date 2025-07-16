@@ -11,7 +11,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(elevation: 0, centerTitle: true, title: const Text('전화')),
+      appBar: AppBar(title: const Text('전화')),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: FutureBuilder<List<Schedule>>(
@@ -31,8 +31,8 @@ class SettingsScreen extends StatelessWidget {
               itemCount: schedules.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
-                final s = schedules[index];
-                final time = s.time.format(context);
+                final schedule = schedules[index];
+                final time = schedule.time.format(context);
 
                 return Container(
                   decoration: BoxDecoration(
@@ -44,7 +44,7 @@ class SettingsScreen extends StatelessWidget {
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    title: Text(s.days.join(',')),
+                    title: Text(schedule.days.join(',')),
                     subtitle: Text(time),
                     trailing: const Icon(
                       Icons.chevron_right,
@@ -55,7 +55,8 @@ class SettingsScreen extends StatelessWidget {
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
-                        builder: (_) => EditScheduleBottomSheet(schedule: s),
+                        builder: (_) =>
+                            EditScheduleBottomSheet(schedule: schedule),
                       );
                     },
                   ),
@@ -74,8 +75,7 @@ class SettingsScreen extends StatelessWidget {
             builder: (_) => const AddScheduleBottomSheet(),
           );
         },
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add),
       ),
     );
   }

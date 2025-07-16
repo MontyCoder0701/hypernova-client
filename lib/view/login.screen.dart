@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
+
+import '/service/auth.service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,29 +20,13 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // TODO: move method into separate layer
-  Future<void> _login(BuildContext context) async {
-    final storage = FlutterSecureStorage();
-
+  Future<void> _handleLogin(BuildContext context) async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
-    final response = await http.post(
-      // TODO: add common base url into separate class (localhost, 10.0.2.2)
-      Uri.parse('http://localhost:8000/token'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'id': _controller.text.trim()}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final token = data['access_token'];
-      await storage.write(key: 'access_token', value: token);
-
-      if (!context.mounted) {
-        return;
-      }
+    final id = _controller.text.trim();
+    final response = await AuthService.login(id);
+    if (response && context.mounted) {
       context.go('/');
     }
   }
@@ -101,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
-                  onPressed: () => _login(context),
+                  onPressed: () => _handleLogin(context),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,

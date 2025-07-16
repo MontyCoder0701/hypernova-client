@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'go_router.dart';
-import 'theme.dart';
+import 'core/go_router.core.dart';
+import 'core/theme.core.dart';
 
 void main() {
   runApp(const MyApp());

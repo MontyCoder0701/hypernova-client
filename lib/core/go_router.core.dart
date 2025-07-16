@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
-import 'view/home.screen.dart';
-import 'view/login.screen.dart';
-import 'view/settings.screen.dart';
+import '../view/home.screen.dart';
+import '../view/login.screen.dart';
+import '../view/settings.screen.dart';
 
 final goRouter = GoRouter(
   initialLocation: '/',

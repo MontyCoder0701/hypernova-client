@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 
 import '../model/schedule.model.dart';
+import '../service/auth.service.dart';
 import 'edit_time.dialog.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -84,6 +85,13 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _handleLogout(BuildContext context) async {
+    await AuthService.logout();
+    if (context.mounted) {
+      context.go('/login');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final DateTime today = DateTime.now();
@@ -97,14 +105,7 @@ class HomeScreen extends StatelessWidget {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.logout),
-          onPressed: () async {
-            final storage = FlutterSecureStorage();
-            await storage.delete(key: 'access_token');
-            if (!context.mounted) {
-              return;
-            }
-            context.go('/login');
-          },
+          onPressed: () => _handleLogout(context),
         ),
         title: Text('${today.year}년 ${today.month}월'),
         actions: [

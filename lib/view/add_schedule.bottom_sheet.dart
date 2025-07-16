@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
+
+import '/service/schedule.service.dart';
 
 class AddScheduleBottomSheet extends StatefulWidget {
   const AddScheduleBottomSheet({super.key});
@@ -16,24 +14,6 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
   DateTime selectedTime = DateTime(2025, 1, 1, 11, 30);
   final List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
   final Set<int> selectedWeekdays = {0};
-
-  Future<void> _createSchedule() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'access_token');
-
-    await http.post(
-      Uri.parse('http://localhost:8000/schedules'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'time': selectedTime.toIso8601String().substring(11, 19),
-        'start_date': DateTime.now().toIso8601String().substring(0, 10),
-        'days': selectedWeekdays.map((i) => weekdays[i]).toList(),
-      }),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +90,10 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                 height: 56,
                 child: FilledButton(
                   onPressed: () async {
-                    await _createSchedule();
+                    await ScheduleService.createSchedule(
+                      selectedTime,
+                      selectedWeekdays,
+                    );
                     if (!context.mounted) {
                       return;
                     }

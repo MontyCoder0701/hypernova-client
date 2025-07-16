@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'core/go_router.core.dart';
+import 'core/http.core.dart';
 import 'core/theme.core.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await HttpClient().authorize();
+
   runApp(const MyApp());
 }
 

@@ -1,89 +1,13 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
 
 import '../model/schedule.model.dart';
 import '../service/auth.service.dart';
+import '../service/schedule.service.dart';
 import 'edit_time.dialog.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  // TODO: move to separate layer
-  Future<List<Schedule>> _fetchSchedules() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'access_token');
-    final response = await http.get(
-      Uri.parse('http://localhost:8000/schedules'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return List<Schedule>.from(data.map((e) => Schedule.fromJson(e)));
-    } else {
-      throw Exception('Failed to load schedules');
-    }
-  }
-
-  Future<void> _addExclusion(int scheduleId, DateTime exclusionDateTime) async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'access_token');
-
-    await http.post(
-      Uri.parse('http://localhost:8000/schedules/$scheduleId/exclude'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'datetime': exclusionDateTime.toIso8601String()}),
-    );
-  }
-
-  Future<void> _handleEditTime(
-    Schedule schedule,
-    DateTime day,
-    DateTime newDateTime,
-  ) async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'access_token');
-    final excludedDateTime = DateTime(
-      day.year,
-      day.month,
-      day.day,
-      schedule.time.hour,
-      schedule.time.minute,
-    );
-
-    await http.post(
-      Uri.parse('http://localhost:8000/schedules/${schedule.id}/exclude'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'datetime': excludedDateTime.toIso8601String()}),
-    );
-
-    final dayName = ['일', '월', '화', '수', '목', '금', '토'][day.weekday % 7];
-    final formattedTime =
-        '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}:00';
-
-    await http.post(
-      Uri.parse('http://localhost:8000/schedules'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'time': formattedTime,
-        'start_date': newDateTime.toIso8601String().substring(0, 10),
-        'end_date': newDateTime.toIso8601String().substring(0, 10),
-        'days': [dayName],
-      }),
-    );
-  }
 
   Future<void> _handleLogout(BuildContext context) async {
     await AuthService.logout();
@@ -116,7 +40,7 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: FutureBuilder<List<Schedule>>(
-        future: _fetchSchedules(),
+        future: ScheduleService.fetchSchedules(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -209,7 +133,13 @@ class HomeScreen extends StatelessWidget {
                               builder: (context) => EditTimeDialog(
                                 day: day,
                                 schedule: schedule,
-                                onSave: _handleEditTime,
+                                onSave: (schedule, day, datetime) async {
+                                  return await ScheduleService.updateSchedule(
+                                    schedule,
+                                    day,
+                                    datetime,
+                                  );
+                                },
                               ),
                             );
                           } else if (value == 'rest') {
@@ -222,7 +152,10 @@ class HomeScreen extends StatelessWidget {
                               schedule.time.minute,
                             );
 
-                            await _addExclusion(schedule.id, exclusionDateTime);
+                            await ScheduleService.createExclusion(
+                              schedule.id,
+                              exclusionDateTime,
+                            );
                           }
                         },
                         itemBuilder: (context) => [

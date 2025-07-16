@@ -1,11 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 
 import '../model/schedule.model.dart';
+import '../service/schedule.service.dart';
 
 class EditScheduleBottomSheet extends StatefulWidget {
   final Schedule schedule;
@@ -21,45 +18,6 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
   late DateTime selectedTime;
   final List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
   late Set<int> selectedWeekdays;
-
-  Future<void> _updateSchedule() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'access_token');
-
-    await http.patch(
-      Uri.parse('http://localhost:8000/schedules/${widget.schedule.id}'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'end_date': DateTime.now().toIso8601String().substring(0, 10),
-      }),
-    );
-
-    await http.post(
-      Uri.parse('http://localhost:8000/schedules'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'time': selectedTime.toIso8601String().substring(11, 19),
-        'start_date': DateTime.now().toIso8601String().substring(0, 10),
-        'days': selectedWeekdays.map((i) => weekdays[i]).toList(),
-      }),
-    );
-  }
-
-  Future<void> _deleteSchedule() async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'access_token');
-
-    await http.delete(
-      Uri.parse('http://localhost:8000/schedules/${widget.schedule.id}'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
-  }
 
   @override
   void initState() {
@@ -106,7 +64,7 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                   const Text('전화 편집'),
                   TextButton(
                     onPressed: () async {
-                      await _deleteSchedule();
+                      await ScheduleService.deleteSchedule(widget.schedule.id);
                       if (!context.mounted) {
                         return;
                       }
@@ -164,8 +122,11 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                 height: 56,
                 child: FilledButton(
                   onPressed: () async {
-                    // TODO: save edit
-                    await _updateSchedule();
+                    await ScheduleService.editSchedule(
+                      widget.schedule.id,
+                      selectedTime,
+                      selectedWeekdays,
+                    );
                     if (!context.mounted) {
                       return;
                     }

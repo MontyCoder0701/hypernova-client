@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '/model/weekday.enum.dart';
 import '/service/schedule.service.dart';
 
 class AddScheduleBottomSheet extends StatefulWidget {
@@ -12,11 +13,8 @@ class AddScheduleBottomSheet extends StatefulWidget {
 
 class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
   DateTime selectedTime = DateTime.now();
-  final List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+  final List<String> weekdays = WeekdayExtension.labels;
   final Set<int> selectedWeekdaysIndex = {0};
-
-  List<String> get selectedWeekdays =>
-      selectedWeekdaysIndex.map((i) => weekdays[i]).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +91,7 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                   onPressed: () async {
                     await ScheduleService.createOne(
                       selectedTime,
-                      selectedWeekdays,
+                      selectedWeekdaysIndex.toList(),
                     );
                     if (!context.mounted) {
                       return;

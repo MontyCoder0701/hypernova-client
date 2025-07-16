@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../model/schedule.model.dart';
+import '../model/weekday.enum.dart';
 import '../service/schedule.service.dart';
 import 'add_schedule.bottom_sheet.dart';
 import 'edit_schedule.bottom_sheet.dart';
@@ -44,7 +45,7 @@ class SettingsScreen extends StatelessWidget {
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    title: Text(schedule.days.join(',')),
+                    title: Text(schedule.days.map((d) => d.label).join(',')),
                     subtitle: Text(time),
                     trailing: const Icon(
                       Icons.chevron_right,

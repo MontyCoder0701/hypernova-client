@@ -1,5 +1,6 @@
 import '../core/http.core.dart';
 import '../model/schedule.model.dart';
+import '../model/weekday.enum.dart';
 
 class ScheduleService {
   static final HttpClient _http = HttpClient();
@@ -11,7 +12,7 @@ class ScheduleService {
     return List<Schedule>.from(data.map((e) => Schedule.fromJson(e)));
   }
 
-  static Future<void> createOne(DateTime time, List<String> days) async {
+  static Future<void> createOne(DateTime time, List<int> days) async {
     await _http.post(
       path,
       data: {
@@ -40,14 +41,14 @@ class ScheduleService {
       data: {'datetime': excludedDateTime.toIso8601String()},
     );
 
-    final dayName = ['일', '월', '화', '수', '목', '금', '토'][day.weekday % 7];
+    final weekdayIndex = WeekdayExtension.fromDateTime(day).indexValue;
     await _http.post(
       path,
       data: {
         'time': newDateTime.toIso8601String().substring(11, 19),
         'start_date': newDateTime.toIso8601String().substring(0, 10),
         'end_date': newDateTime.toIso8601String().substring(0, 10),
-        'days': [dayName],
+        'days': [weekdayIndex],
       },
     );
   }
@@ -55,7 +56,7 @@ class ScheduleService {
   static Future<void> editOne(
     int scheduleId,
     DateTime time,
-    List<String> days,
+    List<int> days,
   ) async {
     await _http.patch(
       '$path/$scheduleId',

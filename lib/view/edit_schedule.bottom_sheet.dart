@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../model/schedule.model.dart';
+import '../model/weekday.enum.dart';
 import '../service/schedule.service.dart';
 
 class EditScheduleBottomSheet extends StatefulWidget {
@@ -16,28 +17,23 @@ class EditScheduleBottomSheet extends StatefulWidget {
 
 class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
   late DateTime selectedTime;
-  final List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
   late Set<int> selectedWeekdaysIndex;
-
-  List<String> get selectedWeekdays =>
-      selectedWeekdaysIndex.map((i) => weekdays[i]).toList();
+  final List<String> weekdays = WeekdayExtension.labels;
 
   @override
   void initState() {
     super.initState();
+    final now = DateTime.now();
 
     selectedTime = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
+      now.year,
+      now.month,
+      now.day,
       widget.schedule.time.hour,
       widget.schedule.time.minute,
     );
 
-    selectedWeekdaysIndex = widget.schedule.days
-        .map((day) => weekdays.indexOf(day))
-        .where((index) => index != -1)
-        .toSet();
+    selectedWeekdaysIndex = widget.schedule.days.map((d) => d.index).toSet();
   }
 
   @override
@@ -68,13 +64,11 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                   TextButton(
                     onPressed: () async {
                       await ScheduleService.deleteOne(widget.schedule.id);
-                      if (!context.mounted) {
-                        return;
-                      }
+                      if (!context.mounted) return;
                       Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(foregroundColor: Colors.black),
-                    child: Text('삭제'),
+                    child: const Text('삭제'),
                   ),
                 ],
               ),
@@ -85,10 +79,8 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                   mode: CupertinoDatePickerMode.time,
                   initialDateTime: selectedTime,
                   use24hFormat: false,
-                  onDateTimeChanged: (DateTime newTime) {
-                    setState(() {
-                      selectedTime = newTime;
-                    });
+                  onDateTimeChanged: (newTime) {
+                    setState(() => selectedTime = newTime);
                   },
                 ),
               ),
@@ -126,11 +118,9 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                     await ScheduleService.editOne(
                       widget.schedule.id,
                       selectedTime,
-                      selectedWeekdays,
+                      selectedWeekdaysIndex.toList(),
                     );
-                    if (!context.mounted) {
-                      return;
-                    }
+                    if (!context.mounted) return;
                     Navigator.pop(context);
                   },
                   child: const Text('저장'),

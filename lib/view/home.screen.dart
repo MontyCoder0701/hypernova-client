@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../model/schedule.model.dart';
+import '../model/weekday.enum.dart';
 import '../service/auth.service.dart';
 import '../service/schedule.service.dart';
 import 'edit_time.dialog.dart';
@@ -19,7 +20,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DateTime today = DateTime.now();
-    final weekdayNames = ['일', '월', '화', '수', '목', '금', '토'];
+    final List<String> weekdays = WeekdayExtension.labels;
     final startDay = today.subtract(const Duration(days: 7));
     final days = List.generate(21, (i) => startDay.add(Duration(days: i)));
 
@@ -53,47 +54,30 @@ class HomeScreen extends StatelessWidget {
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final day = days[index];
+              final isToday = DateUtils.isSameDay(day, today);
 
-              final isToday =
-                  day.year == today.year &&
-                  day.month == today.month &&
-                  day.day == today.day;
-
+              final dayOnly = DateTime(day.year, day.month, day.day);
+              final dayEnum = WeekdayExtension.fromDateTime(day);
               final matchedSchedules = schedules.where((s) {
-                final startDate = DateTime(
-                  s.startDate.year,
-                  s.startDate.month,
-                  s.startDate.day,
-                );
-
-                final endDate = s.endDate != null
-                    ? DateTime(
-                        s.endDate!.year,
-                        s.endDate!.month,
-                        s.endDate!.day,
-                      )
+                final start = DateUtils.dateOnly(s.startDate);
+                final end = s.endDate != null
+                    ? DateUtils.dateOnly(s.endDate!)
                     : null;
-
-                final dayOnly = DateTime(day.year, day.month, day.day);
-                final dayName = weekdayNames[day.weekday % 7];
-                final scheduleDateTime = DateTime(
-                  day.year,
-                  day.month,
-                  day.day,
-                  s.time.hour,
-                  s.time.minute,
+                final inRange =
+                    dayOnly.isAfter(start.subtract(const Duration(days: 1))) &&
+                    (end == null ||
+                        dayOnly.isBefore(end.add(const Duration(days: 1))));
+                final onDay = s.days.contains(dayEnum);
+                final active = s.isActiveAt(
+                  DateTime(
+                    day.year,
+                    day.month,
+                    day.day,
+                    s.time.hour,
+                    s.time.minute,
+                  ),
                 );
-
-                final isInRange =
-                    (dayOnly.isAtSameMomentAs(startDate) ||
-                        dayOnly.isAfter(startDate)) &&
-                    (endDate == null ||
-                        dayOnly.isAtSameMomentAs(endDate) ||
-                        dayOnly.isBefore(endDate));
-
-                final isScheduledDay = s.days.contains(dayName);
-                final isNotExcluded = s.isActiveAt(scheduleDateTime);
-                return isInRange && isScheduledDay && isNotExcluded;
+                return inRange && onDay && active;
               }).toList();
 
               return ListTile(
@@ -101,7 +85,7 @@ class HomeScreen extends StatelessWidget {
                 leading: SizedBox(
                   width: 40,
                   child: Text(
-                    '${isToday ? "오늘" : weekdayNames[day.weekday % 7]}\n${day.day}',
+                    '${isToday ? "오늘" : weekdays[day.weekday - 1]}\n${day.day}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: isToday ? Colors.white : Colors.black,
@@ -123,8 +107,8 @@ class HomeScreen extends StatelessWidget {
                           color: isToday ? Colors.white : Colors.black,
                         ),
                         onSelected: (value) async {
+                          final schedule = matchedSchedules.first;
                           if (value == 'edit') {
-                            final schedule = matchedSchedules.first;
                             showDialog(
                               context: context,
                               builder: (context) => EditTimeDialog(
@@ -140,7 +124,6 @@ class HomeScreen extends StatelessWidget {
                               ),
                             );
                           } else if (value == 'rest') {
-                            final schedule = matchedSchedules.first;
                             final exclusionDateTime = DateTime(
                               day.year,
                               day.month,
@@ -155,12 +138,12 @@ class HomeScreen extends StatelessWidget {
                             );
                           }
                         },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem<String>(
+                        itemBuilder: (context) => const [
+                          PopupMenuItem<String>(
                             value: 'edit',
                             child: Text('수정하기'),
                           ),
-                          const PopupMenuItem<String>(
+                          PopupMenuItem<String>(
                             value: 'rest',
                             child: Text('쉬어가기'),
                           ),

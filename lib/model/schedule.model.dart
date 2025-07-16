@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'weekday.enum.dart';
+
 class Schedule {
   final int id;
   final TimeOfDay time;
   final DateTime startDate;
   final DateTime? endDate;
-  final List<String> days;
+  final List<Weekday> days;
   final List<DateTime> exclusions;
 
   Schedule({
@@ -26,12 +28,14 @@ class Schedule {
 
     return Schedule(
       id: json['id'],
-      days: (json['days'] as List).map((d) => d['day'] as String).toList(),
       time: timeOfDay,
       startDate: DateTime.parse(json['start_date']),
       endDate: json['end_date'] != null
           ? DateTime.parse(json['end_date'])
           : null,
+      days: (json['days'] as List)
+          .map((e) => WeekdayExtension.fromIndex(int.parse(e['day'])))
+          .toList(),
       exclusions: (json['exclusions'] as List)
           .map((e) => DateTime.parse(e['datetime']))
           .toList(),

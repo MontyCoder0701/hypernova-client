@@ -5,28 +5,24 @@ class ScheduleService {
   static final HttpClient _http = HttpClient();
   static final path = '/schedules';
 
-  static Future<List<Schedule>> fetchSchedules() async {
+  static Future<List<Schedule>> getAll() async {
     final response = await _http.get(path);
     final data = response.data;
     return List<Schedule>.from(data.map((e) => Schedule.fromJson(e)));
   }
 
-  static Future<void> createSchedule(
-    DateTime selectedTime,
-    Set<int> selectedWeekdays,
-  ) async {
-    List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
+  static Future<void> createOne(DateTime time, List<String> days) async {
     await _http.post(
       path,
       data: {
-        'time': selectedTime.toIso8601String().substring(11, 19),
+        'time': time.toIso8601String().substring(11, 19),
         'start_date': DateTime.now().toIso8601String().substring(0, 10),
-        'days': selectedWeekdays.map((i) => weekdays[i]).toList(),
+        'days': days,
       },
     );
   }
 
-  static Future<void> updateSchedule(
+  static Future<void> updateOne(
     Schedule schedule,
     DateTime day,
     DateTime newDateTime,
@@ -45,13 +41,10 @@ class ScheduleService {
     );
 
     final dayName = ['일', '월', '화', '수', '목', '금', '토'][day.weekday % 7];
-    final formattedTime =
-        '${newDateTime.hour.toString().padLeft(2, '0')}:${newDateTime.minute.toString().padLeft(2, '0')}:00';
-
     await _http.post(
       path,
       data: {
-        'time': formattedTime,
+        'time': newDateTime.toIso8601String().substring(11, 19),
         'start_date': newDateTime.toIso8601String().substring(0, 10),
         'end_date': newDateTime.toIso8601String().substring(0, 10),
         'days': [dayName],
@@ -59,13 +52,11 @@ class ScheduleService {
     );
   }
 
-  static Future<void> editSchedule(
+  static Future<void> editOne(
     int scheduleId,
-    DateTime selectedTime,
-    Set<int> selectedWeekdays,
+    DateTime time,
+    List<String> days,
   ) async {
-    List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
-
     await _http.patch(
       '$path/$scheduleId',
       data: {'end_date': DateTime.now().toIso8601String().substring(0, 10)},
@@ -74,18 +65,18 @@ class ScheduleService {
     await _http.post(
       path,
       data: {
-        'time': selectedTime.toIso8601String().substring(11, 19),
+        'time': time.toIso8601String().substring(11, 19),
         'start_date': DateTime.now().toIso8601String().substring(0, 10),
-        'days': selectedWeekdays.map((i) => weekdays[i]).toList(),
+        'days': days,
       },
     );
   }
 
-  static Future<void> deleteSchedule(int scheduleId) async {
+  static Future<void> deleteOne(int scheduleId) async {
     await _http.delete('$path/$scheduleId');
   }
 
-  static Future<void> createExclusion(
+  static Future<void> createOneExclusion(
     int scheduleId,
     DateTime exclusionDateTime,
   ) async {

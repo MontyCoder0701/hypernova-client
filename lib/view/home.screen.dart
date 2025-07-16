@@ -40,7 +40,7 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: FutureBuilder<List<Schedule>>(
-        future: ScheduleService.fetchSchedules(),
+        future: ScheduleService.getAll(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -134,7 +134,7 @@ class HomeScreen extends StatelessWidget {
                                 day: day,
                                 schedule: schedule,
                                 onSave: (schedule, day, datetime) async {
-                                  return await ScheduleService.updateSchedule(
+                                  return await ScheduleService.updateOne(
                                     schedule,
                                     day,
                                     datetime,
@@ -152,7 +152,7 @@ class HomeScreen extends StatelessWidget {
                               schedule.time.minute,
                             );
 
-                            await ScheduleService.createExclusion(
+                            await ScheduleService.createOneExclusion(
                               schedule.id,
                               exclusionDateTime,
                             );

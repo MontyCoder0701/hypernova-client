@@ -38,6 +38,8 @@ class Schedule {
     );
   }
 
+  bool get isVisible => endDate == null;
+
   bool isActiveAt(DateTime dt) {
     return !exclusions.any(
       (ex) =>

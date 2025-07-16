@@ -11,9 +11,12 @@ class AddScheduleBottomSheet extends StatefulWidget {
 }
 
 class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
-  DateTime selectedTime = DateTime(2025, 1, 1, 11, 30);
+  DateTime selectedTime = DateTime.now();
   final List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
-  final Set<int> selectedWeekdays = {0};
+  final Set<int> selectedWeekdaysIndex = {0};
+
+  List<String> get selectedWeekdays =>
+      selectedWeekdaysIndex.map((i) => weekdays[i]).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +66,7 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
               Wrap(
                 spacing: 8,
                 children: List.generate(weekdays.length, (index) {
-                  final selected = selectedWeekdays.contains(index);
+                  final selected = selectedWeekdaysIndex.contains(index);
                   return ChoiceChip(
                     label: Text(weekdays[index]),
                     selected: selected,
@@ -75,9 +78,9 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                     onSelected: (bool value) {
                       setState(() {
                         if (value) {
-                          selectedWeekdays.add(index);
+                          selectedWeekdaysIndex.add(index);
                         } else {
-                          selectedWeekdays.remove(index);
+                          selectedWeekdaysIndex.remove(index);
                         }
                       });
                     },
@@ -90,7 +93,7 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                 height: 56,
                 child: FilledButton(
                   onPressed: () async {
-                    await ScheduleService.createSchedule(
+                    await ScheduleService.createOne(
                       selectedTime,
                       selectedWeekdays,
                     );

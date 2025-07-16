@@ -20,8 +20,4 @@ class AuthService {
   static Future<void> logout() async {
     await _http.unauthorize();
   }
-
-  static Future<String?> getToken() async {
-    return await _storage.read(key: 'access_token');
-  }
 }

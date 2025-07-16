@@ -17,21 +17,24 @@ class EditScheduleBottomSheet extends StatefulWidget {
 class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
   late DateTime selectedTime;
   final List<String> weekdays = ['월', '화', '수', '목', '금', '토', '일'];
-  late Set<int> selectedWeekdays;
+  late Set<int> selectedWeekdaysIndex;
+
+  List<String> get selectedWeekdays =>
+      selectedWeekdaysIndex.map((i) => weekdays[i]).toList();
 
   @override
   void initState() {
     super.initState();
 
     selectedTime = DateTime(
-      2025,
-      1,
-      1,
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
       widget.schedule.time.hour,
       widget.schedule.time.minute,
     );
 
-    selectedWeekdays = widget.schedule.days
+    selectedWeekdaysIndex = widget.schedule.days
         .map((day) => weekdays.indexOf(day))
         .where((index) => index != -1)
         .toSet();
@@ -64,7 +67,7 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                   const Text('전화 편집'),
                   TextButton(
                     onPressed: () async {
-                      await ScheduleService.deleteSchedule(widget.schedule.id);
+                      await ScheduleService.deleteOne(widget.schedule.id);
                       if (!context.mounted) {
                         return;
                       }
@@ -95,7 +98,7 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
               Wrap(
                 spacing: 8,
                 children: List.generate(weekdays.length, (index) {
-                  final selected = selectedWeekdays.contains(index);
+                  final selected = selectedWeekdaysIndex.contains(index);
                   return ChoiceChip(
                     label: Text(weekdays[index]),
                     selected: selected,
@@ -107,9 +110,9 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                     onSelected: (bool value) {
                       setState(() {
                         if (value) {
-                          selectedWeekdays.add(index);
+                          selectedWeekdaysIndex.add(index);
                         } else {
-                          selectedWeekdays.remove(index);
+                          selectedWeekdaysIndex.remove(index);
                         }
                       });
                     },
@@ -122,7 +125,7 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                 height: 56,
                 child: FilledButton(
                   onPressed: () async {
-                    await ScheduleService.editSchedule(
+                    await ScheduleService.editOne(
                       widget.schedule.id,
                       selectedTime,
                       selectedWeekdays,

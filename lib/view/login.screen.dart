@@ -1,8 +1,54 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'dart:convert';
 
-class LoginScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+
+// TODO: move into separate layer
+final storage = FlutterSecureStorage();
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  // TODO: move method into separate layer
+  Future<void> _login(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final response = await http.post(
+      // TODO: add common base url into separate class (localhost, 10.0.2.2)
+      Uri.parse('http://localhost:8000/token'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'id': _controller.text.trim()}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final token = data['access_token'];
+      await storage.write(key: 'access_token', value: token);
+
+      if (!context.mounted) {
+        return;
+      }
+      context.go('/');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,20 +68,30 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: TextField(
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+            Form(
+              key: _formKey,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: TextFormField(
+                  controller: _controller,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(vertical: 12),
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black),
+                    ),
                   ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '아이디를 입력해주세요.';
+                    }
+                    return null;
+                  },
                 ),
               ),
             ),
@@ -46,10 +102,7 @@ class LoginScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
-                  onPressed: () {
-                    // TODO: 로그인 및 세션 생성
-                    context.go('/');
-                  },
+                  onPressed: () => _login(context),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,

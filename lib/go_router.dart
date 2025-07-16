@@ -5,6 +5,7 @@ import 'view/login.screen.dart';
 import 'view/settings.screen.dart';
 
 final goRouter = GoRouter(
+  // TODO: check session before allowing routing
   initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => HomeScreen()),

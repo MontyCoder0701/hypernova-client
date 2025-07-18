@@ -32,13 +32,13 @@ class ScheduleController extends GetxController {
     update();
   }
 
-  Future<void> updateOne(int scheduleId, DateTime time, List<int> days) async {
-    await _service.updateOne(scheduleId, time, days);
+  Future<void> deleteOne(int scheduleId) async {
+    await _service.deleteOne(scheduleId);
     getAll();
   }
 
-  Future<void> deleteOne(int scheduleId) async {
-    await _service.deleteOne(scheduleId);
+  Future<void> replaceOne(int scheduleId, DateTime time, List<int> days) async {
+    await _service.replaceOne(scheduleId, time, days);
     getAll();
   }
 
@@ -55,12 +55,16 @@ class ScheduleController extends GetxController {
     update();
   }
 
-  Future<void> updateOneTime(
-    Schedule schedule,
-    DateTime day,
-    DateTime newDateTime,
-  ) async {
-    await _service.updateOneTime(schedule, day, newDateTime);
-    getAll();
+  Future<void> modifyOneTime(int scheduleId, DateTime newDateTime) async {
+    final updatedResource = await _service.modifyOneTime(
+      scheduleId,
+      newDateTime,
+    );
+    final index = _resources.indexWhere((e) => e.id == scheduleId);
+    if (index < 0) {
+      return;
+    }
+    _resources[index] = updatedResource;
+    update();
   }
 }

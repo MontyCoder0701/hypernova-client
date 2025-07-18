@@ -19,10 +19,10 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime today = DateTime.now();
     final List<String> weekdays = WeekdayExtension.labels;
-    final startDay = today.subtract(const Duration(days: 7));
-    final days = List.generate(21, (i) => startDay.add(Duration(days: i)));
+    final today = DateUtils.dateOnly(DateTime.now());
+    final start = today.subtract(const Duration(days: 7));
+    final days = List.generate(21, (i) => start.add(Duration(days: i)));
 
     return Scaffold(
       appBar: AppBar(
@@ -40,39 +40,18 @@ class HomeScreen extends StatelessWidget {
       ),
       body: GetBuilder<ScheduleController>(
         initState: (_) => ScheduleController.to.getAll(),
-        dispose: (_) => ScheduleController.to.dispose(),
         builder: (controller) {
           final schedules = controller.resources;
+
           return ListView.separated(
             itemCount: days.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
             itemBuilder: (context, index) {
               final day = days[index];
               final isToday = DateUtils.isSameDay(day, today);
-
-              final dayOnly = DateTime(day.year, day.month, day.day);
-              final dayEnum = WeekdayExtension.fromDateTime(day);
-              final matchedSchedules = schedules.where((s) {
-                final start = DateUtils.dateOnly(s.startDate);
-                final end = s.endDate != null
-                    ? DateUtils.dateOnly(s.endDate!)
-                    : null;
-                final inRange =
-                    dayOnly.isAfter(start.subtract(const Duration(days: 1))) &&
-                    (end == null ||
-                        dayOnly.isBefore(end.add(const Duration(days: 1))));
-                final onDay = s.days.contains(dayEnum);
-                final active = s.isActiveAt(
-                  DateTime(
-                    day.year,
-                    day.month,
-                    day.day,
-                    s.time.hour,
-                    s.time.minute,
-                  ),
-                );
-                return inRange && onDay && active;
-              }).toList();
+              final matchedSchedules = schedules
+                  .where((s) => s.matches(day))
+                  .toList();
 
               return ListTile(
                 tileColor: isToday ? Colors.black : null,
@@ -88,7 +67,9 @@ class HomeScreen extends StatelessWidget {
                 ),
                 title: Text(
                   matchedSchedules.isNotEmpty
-                      ? matchedSchedules.first.time.format(context)
+                      ? matchedSchedules.first
+                            .getDisplayTime(day)
+                            .format(context)
                       : '등록된 일정 없음',
                   style: TextStyle(
                     color: isToday ? Colors.white : Colors.black,
@@ -108,9 +89,9 @@ class HomeScreen extends StatelessWidget {
                               builder: (context) => EditTimeDialog(
                                 day: day,
                                 schedule: schedule,
-                                onSave: (schedule, day, datetime) async {
+                                onSave: (schedule, datetime) async {
                                   return await Get.find<ScheduleController>()
-                                      .updateOneTime(schedule, day, datetime);
+                                      .modifyOneTime(schedule.id, datetime);
                                 },
                               ),
                             );

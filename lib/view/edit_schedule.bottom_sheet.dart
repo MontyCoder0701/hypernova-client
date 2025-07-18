@@ -125,7 +125,7 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                 height: 56,
                 child: FilledButton(
                   onPressed: () async {
-                    await Get.find<ScheduleController>().updateOne(
+                    await Get.find<ScheduleController>().replaceOne(
                       widget.schedule.id,
                       selectedTime,
                       selectedWeekdaysIndex.toList(),

@@ -6,17 +6,12 @@ import '../model/schedule.model.dart';
 class EditTimeDialog extends StatefulWidget {
   final DateTime day;
   final Schedule schedule;
-  final Future<void> Function(
-    Schedule schedule,
-    DateTime day,
-    DateTime newDateTime,
-  )
-  onSave;
+  final Future<void> Function(Schedule schedule, DateTime newDateTime) onSave;
 
   const EditTimeDialog({
     super.key,
-    required this.day,
     required this.schedule,
+    required this.day,
     required this.onSave,
   });
 
@@ -78,11 +73,7 @@ class _EditTimeDialogState extends State<EditTimeDialog> {
                 child: FilledButton(
                   onPressed: () async {
                     Navigator.pop(context);
-                    await widget.onSave(
-                      widget.schedule,
-                      widget.day,
-                      selectedTime,
-                    );
+                    await widget.onSave(widget.schedule, selectedTime);
                   },
                   child: const Text('저장'),
                 ),

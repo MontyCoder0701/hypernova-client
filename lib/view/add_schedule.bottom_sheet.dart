@@ -15,7 +15,7 @@ class AddScheduleBottomSheet extends StatefulWidget {
 class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
   final scheduleController = Get.find<ScheduleController>();
 
-  DateTime selectedTime = DateTime.now();
+  DateTime selectedTime = DateTime.now().add(const Duration(minutes: 1));
   final List<String> weekdays = WeekdayExtension.labels;
   final Set<int> selectedWeekdaysIndex = {};
 

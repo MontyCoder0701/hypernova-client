@@ -22,8 +22,7 @@ class AuthService {
   }
 
   static Future<bool> get isTokenSaved async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'access_token');
+    final token = await _storage.read(key: 'access_token');
     return token != null;
   }
 }

@@ -36,17 +36,12 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
 
-    selectedTime = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      widget.schedule.time.hour,
-      widget.schedule.time.minute,
+    selectedTime = DateTime.now().copyWith(
+      hour: widget.schedule.time.hour,
+      minute: widget.schedule.time.minute,
     );
-
-    selectedWeekdaysIndex = widget.schedule.days.map((d) => d.index).toSet();
+    selectedWeekdaysIndex = widget.schedule.days.map((e) => e.index).toSet();
   }
 
   @override

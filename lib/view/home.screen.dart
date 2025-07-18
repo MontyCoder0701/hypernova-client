@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
-import '../model/schedule.model.dart';
+import '../controller/schedule.controller.dart';
 import '../model/weekday.enum.dart';
 import '../service/auth.service.dart';
-import '../service/schedule.service.dart';
 import 'edit_time.dialog.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -38,17 +38,11 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: FutureBuilder<List<Schedule>>(
-        future: ScheduleService.getAll(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('에러 발생: ${snapshot.error}'));
-          }
-
-          final schedules = snapshot.data ?? [];
-
+      body: GetBuilder<ScheduleController>(
+        initState: (_) => ScheduleController.to.getAll(),
+        dispose: (_) => ScheduleController.to.dispose(),
+        builder: (controller) {
+          final schedules = controller.resources;
           return ListView.separated(
             itemCount: days.length,
             separatorBuilder: (_, __) => const Divider(height: 1),
@@ -115,11 +109,8 @@ class HomeScreen extends StatelessWidget {
                                 day: day,
                                 schedule: schedule,
                                 onSave: (schedule, day, datetime) async {
-                                  return await ScheduleService.updateOne(
-                                    schedule,
-                                    day,
-                                    datetime,
-                                  );
+                                  return await Get.find<ScheduleController>()
+                                      .updateOneTime(schedule, day, datetime);
                                 },
                               ),
                             );
@@ -132,7 +123,7 @@ class HomeScreen extends StatelessWidget {
                               schedule.time.minute,
                             );
 
-                            await ScheduleService.createOneExclusion(
+                            await controller.excludeOne(
                               schedule.id,
                               exclusionDateTime,
                             );

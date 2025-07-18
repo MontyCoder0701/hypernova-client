@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../model/schedule.model.dart';
+import '../controller/schedule.controller.dart';
 import '../model/weekday.enum.dart';
-import '../service/schedule.service.dart';
 import 'add_schedule.bottom_sheet.dart';
 import 'edit_schedule.bottom_sheet.dart';
 
@@ -15,19 +15,9 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('전화')),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: FutureBuilder<List<Schedule>>(
-          future: ScheduleService.getAll(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('에러 발생: ${snapshot.error}'));
-            }
-
-            final schedules = (snapshot.data ?? [])
-                .where((s) => s.isVisible)
-                .toList();
-
+        child: GetBuilder<ScheduleController>(
+          builder: (controller) {
+            final schedules = controller.visibleResources;
             return ListView.separated(
               itemCount: schedules.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),

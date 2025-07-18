@@ -6,14 +6,14 @@ class ScheduleService {
   static final HttpClient _http = HttpClient();
   static final path = '/schedules';
 
-  static Future<List<Schedule>> getAll() async {
+  Future<List<Schedule>> getAll() async {
     final response = await _http.get(path);
     final data = response.data;
     return List<Schedule>.from(data.map((e) => Schedule.fromJson(e)));
   }
 
-  static Future<void> createOne(DateTime time, List<int> days) async {
-    await _http.post(
+  Future<Schedule> createOne(DateTime time, List<int> days) async {
+    final response = await _http.post(
       path,
       data: {
         'time': time.toIso8601String().substring(11, 19),
@@ -21,9 +21,11 @@ class ScheduleService {
         'days': days,
       },
     );
+    final data = response.data;
+    return Schedule.fromJson(data);
   }
 
-  static Future<void> updateOne(
+  Future<void> updateOneTime(
     Schedule schedule,
     DateTime day,
     DateTime newDateTime,
@@ -53,11 +55,7 @@ class ScheduleService {
     );
   }
 
-  static Future<void> editOne(
-    int scheduleId,
-    DateTime time,
-    List<int> days,
-  ) async {
+  Future<void> updateOne(int scheduleId, DateTime time, List<int> days) async {
     await _http.patch(
       '$path/$scheduleId',
       data: {'end_date': DateTime.now().toIso8601String().substring(0, 10)},
@@ -73,18 +71,19 @@ class ScheduleService {
     );
   }
 
-  // TODO: delete all related schedules in server
-  static Future<void> deleteOne(int scheduleId) async {
+  Future<void> deleteOne(int scheduleId) async {
     await _http.delete('$path/$scheduleId');
   }
 
-  static Future<void> createOneExclusion(
+  Future<Schedule> excludeOne(
     int scheduleId,
     DateTime exclusionDateTime,
   ) async {
-    await _http.post(
+    final response = await _http.post(
       '$path/$scheduleId/exclude',
       data: {'datetime': exclusionDateTime.toIso8601String()},
     );
+    final data = response.data;
+    return Schedule.fromJson(data);
   }
 }

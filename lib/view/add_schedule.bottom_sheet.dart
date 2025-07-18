@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '/controller/schedule.controller.dart';
 import '/model/weekday.enum.dart';
-import '/service/schedule.service.dart';
 
 class AddScheduleBottomSheet extends StatefulWidget {
   const AddScheduleBottomSheet({super.key});
@@ -12,9 +13,21 @@ class AddScheduleBottomSheet extends StatefulWidget {
 }
 
 class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
+  final scheduleController = Get.find<ScheduleController>();
+
   DateTime selectedTime = DateTime.now();
   final List<String> weekdays = WeekdayExtension.labels;
-  final Set<int> selectedWeekdaysIndex = {0};
+  final Set<int> selectedWeekdaysIndex = {};
+
+  void _handleOnChipSelected(bool value, int index) {
+    setState(() {
+      if (value) {
+        selectedWeekdaysIndex.add(index);
+      } else {
+        selectedWeekdaysIndex.remove(index);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +74,6 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
               const SizedBox(height: 24),
               const Text('반복'),
               const SizedBox(height: 12),
-              // TODO: add validation (one schedule per day)
               Wrap(
                 spacing: 8,
                 children: List.generate(weekdays.length, (index) {
@@ -72,15 +84,12 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                     labelStyle: TextStyle(
                       color: selected ? Colors.white : Colors.black,
                     ),
-                    onSelected: (bool value) {
-                      setState(() {
-                        if (value) {
-                          selectedWeekdaysIndex.add(index);
-                        } else {
-                          selectedWeekdaysIndex.remove(index);
-                        }
-                      });
-                    },
+                    onSelected:
+                        scheduleController.isWeekdayValid(
+                          WeekdayExtension.fromIndex(index),
+                        )
+                        ? (value) => _handleOnChipSelected(value, index)
+                        : null,
                   );
                 }),
               ),
@@ -90,7 +99,7 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                 height: 56,
                 child: FilledButton(
                   onPressed: () async {
-                    await ScheduleService.createOne(
+                    await scheduleController.createOne(
                       selectedTime,
                       selectedWeekdaysIndex.toList(),
                     );

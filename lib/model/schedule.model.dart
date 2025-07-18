@@ -3,21 +3,26 @@ import 'package:flutter/material.dart';
 import 'weekday.enum.dart';
 
 class Schedule {
-  final int id;
-  final TimeOfDay time;
-  final DateTime startDate;
-  final DateTime? endDate;
-  final List<Weekday> days;
-  final List<DateTime> exclusions;
+  final int _id;
+  final TimeOfDay _time;
+  final DateTime _startDate;
+  final DateTime? _endDate;
+  final List<Weekday> _days;
+  final List<DateTime> _exclusions;
 
   Schedule({
-    required this.id,
-    required this.time,
-    required this.startDate,
-    required this.endDate,
-    required this.days,
-    required this.exclusions,
-  });
+    required int id,
+    required TimeOfDay time,
+    required DateTime startDate,
+    required DateTime? endDate,
+    required List<Weekday> days,
+    required List<DateTime> exclusions,
+  }) : _id = id,
+       _time = time,
+       _startDate = startDate,
+       _endDate = endDate,
+       _days = days,
+       _exclusions = exclusions;
 
   factory Schedule.fromJson(Map<String, dynamic> json) {
     final timeParts = (json['time'] as String).split(':');
@@ -42,16 +47,30 @@ class Schedule {
     );
   }
 
-  bool get isVisible => endDate == null;
+  int get id => _id;
+
+  TimeOfDay get time => _time;
+
+  DateTime get startDate => _startDate;
+
+  DateTime? get endDate => _endDate;
+
+  List<Weekday> get days => List.unmodifiable(
+    _days..sort((a, b) => a.indexValue.compareTo(b.indexValue)),
+  );
+
+  List<DateTime> get exclusions => List.unmodifiable(_exclusions);
+
+  bool get isVisible => _endDate == null;
 
   bool isActiveAt(DateTime dt) {
-    return !exclusions.any(
+    return !_exclusions.any(
       (ex) =>
           ex.year == dt.year &&
           ex.month == dt.month &&
           ex.day == dt.day &&
-          ex.hour == time.hour &&
-          ex.minute == time.minute,
+          ex.hour == _time.hour &&
+          ex.minute == _time.minute,
     );
   }
 }

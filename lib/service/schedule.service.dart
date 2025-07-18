@@ -1,4 +1,5 @@
 import '../core/http.core.dart';
+import '../core/utils.dart';
 import '../model/schedule.model.dart';
 import '../model/weekday.enum.dart';
 
@@ -16,8 +17,8 @@ class ScheduleService {
     final response = await _http.post(
       path,
       data: {
-        'time': time.toIso8601String().substring(11, 19),
-        'start_date': DateTime.now().toIso8601String().substring(0, 10),
+        'time': time.formattedTime,
+        'start_date': DateTime.now().formattedDate,
         'days': days,
       },
     );
@@ -47,9 +48,9 @@ class ScheduleService {
     await _http.post(
       path,
       data: {
-        'time': newDateTime.toIso8601String().substring(11, 19),
-        'start_date': newDateTime.toIso8601String().substring(0, 10),
-        'end_date': newDateTime.toIso8601String().substring(0, 10),
+        'time': newDateTime.formattedTime,
+        'start_date': newDateTime.formattedDate,
+        'end_date': newDateTime.formattedDate,
         'days': [weekdayIndex],
       },
     );
@@ -58,14 +59,14 @@ class ScheduleService {
   Future<void> updateOne(int scheduleId, DateTime time, List<int> days) async {
     await _http.patch(
       '$path/$scheduleId',
-      data: {'end_date': DateTime.now().toIso8601String().substring(0, 10)},
+      data: {'end_date': DateTime.now().formattedTime},
     );
 
     await _http.post(
       path,
       data: {
-        'time': time.toIso8601String().substring(11, 19),
-        'start_date': DateTime.now().toIso8601String().substring(0, 10),
+        'time': time.formattedTime,
+        'start_date': DateTime.now().formattedDate,
         'days': days,
       },
     );

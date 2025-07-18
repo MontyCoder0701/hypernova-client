@@ -20,4 +20,10 @@ class AuthService {
   static Future<void> logout() async {
     await _http.unauthorize();
   }
+
+  static Future<bool> get isTokenSaved async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'access_token');
+    return token != null;
+  }
 }

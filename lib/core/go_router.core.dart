@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 
+import '../service/auth.service.dart';
 import '../view/home.screen.dart';
 import '../view/login.screen.dart';
 import '../view/settings.screen.dart';
@@ -14,14 +14,13 @@ final goRouter = GoRouter(
     GoRoute(path: '/settings', builder: (context, state) => SettingsScreen()),
   ],
   redirect: (BuildContext context, GoRouterState state) async {
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'access_token');
+    final isTokenSaved = await AuthService.isTokenSaved;
     final isGoingToLogin = state.uri.toString() == '/login';
 
-    if (token == null && !isGoingToLogin) {
+    if (!isTokenSaved && !isGoingToLogin) {
       return '/login';
     }
-    if (token != null && isGoingToLogin) {
+    if (isTokenSaved && isGoingToLogin) {
       return '/';
     }
     return null;

@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HttpClient {
   static final HttpClient _httpClient = HttpClient._();
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://localhost:8000',
+      baseUrl: _baseUrl,
       headers: {'Content-Type': 'application/json'},
     ),
   );
@@ -16,19 +17,36 @@ class HttpClient {
 
   factory HttpClient() => _httpClient;
 
+  static String get _baseUrl {
+    if (kDebugMode) {
+      switch (defaultTargetPlatform) {
+        case TargetPlatform.android:
+          return 'http://10.0.2.2:8000';
+        case TargetPlatform.iOS:
+          return 'http://localhost:8000';
+        default:
+          throw 'http://localhost:8000';
+      }
+    }
+
+    // TODO: add url for actual release
+    throw UnimplementedError();
+  }
+
   Future<void> authorize() async {
     final token = await _storage.read(key: 'access_token');
-    if (token != null) {
-      _dio.interceptors.clear();
-      _dio.interceptors.add(
-        InterceptorsWrapper(
-          onRequest: (options, handler) {
-            options.headers['Authorization'] = 'Bearer $token';
-            return handler.next(options);
-          },
-        ),
-      );
+    if (token == null) {
+      return;
     }
+    _dio.interceptors.clear();
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          options.headers['Authorization'] = 'Bearer $token';
+          return handler.next(options);
+        },
+      ),
+    );
   }
 
   Future<void> unauthorize() async {

@@ -15,12 +15,14 @@ class AddScheduleBottomSheet extends StatefulWidget {
 class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
   final scheduleController = Get.find<ScheduleController>();
 
+  bool isEditTriggered = false;
   DateTime selectedTime = DateTime.now().add(const Duration(minutes: 1));
   final List<String> weekdays = WeekdayExtension.labels;
   final Set<int> selectedWeekdaysIndex = {};
 
   void _handleOnChipSelected(bool value, int index) {
     setState(() {
+      isEditTriggered = true;
       if (value) {
         selectedWeekdaysIndex.add(index);
       } else {
@@ -29,16 +31,27 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
     });
   }
 
+  Future<void> _handleOnSave() async {
+    await scheduleController.createOne(
+      selectedTime,
+      selectedWeekdaysIndex.toList(),
+    );
+    if (!mounted) {
+      return;
+    }
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.8,
-      minChildSize: 0.8,
-      maxChildSize: 0.8,
+      initialChildSize: 0.85,
+      minChildSize: 0.85,
+      maxChildSize: 0.85,
       builder: (context, scrollController) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceDim,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SingleChildScrollView(
@@ -53,13 +66,20 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  const Text('전화 추가'),
+                  const Text(
+                    '전화 추가',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(width: 48),
                 ],
               ),
               const SizedBox(height: 16),
-              SizedBox(
+              Container(
                 height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.time,
                   initialDateTime: selectedTime,
@@ -72,7 +92,10 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text('반복'),
+              const Text(
+                '반복',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
@@ -98,16 +121,7 @@ class _AddScheduleBottomSheetState extends State<AddScheduleBottomSheet> {
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
-                  onPressed: () async {
-                    await scheduleController.createOne(
-                      selectedTime,
-                      selectedWeekdaysIndex.toList(),
-                    );
-                    if (!context.mounted) {
-                      return;
-                    }
-                    Navigator.pop(context);
-                  },
+                  onPressed: isEditTriggered ? () => _handleOnSave() : null,
                   child: const Text('저장'),
                 ),
               ),

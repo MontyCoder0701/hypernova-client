@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller/schedule.controller.dart';
-import '../model/schedule.model.dart';
-import '../model/weekday.enum.dart';
+import '../../controller/schedule.controller.dart';
+import '../../model/schedule.model.dart';
+import '../../model/weekday.enum.dart';
 
 class EditScheduleBottomSheet extends StatefulWidget {
   final Schedule schedule;
@@ -19,18 +19,32 @@ class EditScheduleBottomSheet extends StatefulWidget {
 class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
   final scheduleController = Get.find<ScheduleController>();
 
+  bool isEditTriggered = false;
   late DateTime selectedTime;
   late Set<int> selectedWeekdaysIndex;
   final List<String> weekdays = WeekdayExtension.labels;
 
   void _handleOnChipSelected(bool value, int index) {
     setState(() {
+      isEditTriggered = true;
       if (value) {
         selectedWeekdaysIndex.add(index);
       } else {
         selectedWeekdaysIndex.remove(index);
       }
     });
+  }
+
+  Future<void> _handleOnSave() async {
+    await Get.find<ScheduleController>().replaceOne(
+      widget.schedule.id,
+      selectedTime,
+      selectedWeekdaysIndex.toList(),
+    );
+    if (!mounted) {
+      return;
+    }
+    Navigator.pop(context);
   }
 
   @override
@@ -47,13 +61,13 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.8,
-      minChildSize: 0.8,
-      maxChildSize: 0.8,
+      initialChildSize: 0.85,
+      minChildSize: 0.85,
+      maxChildSize: 0.85,
       builder: (context, scrollController) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceDim,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SingleChildScrollView(
@@ -68,7 +82,10 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  const Text('전화 편집'),
+                  const Text(
+                    '전화 편집',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   TextButton(
                     onPressed: () async {
                       await Get.find<ScheduleController>().deleteOne(
@@ -77,21 +94,34 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                       if (!context.mounted) return;
                       Navigator.pop(context);
                     },
-                    style: TextButton.styleFrom(foregroundColor: Colors.black),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.secondary,
+                      textStyle: TextStyle(fontSize: 16),
+                    ),
                     child: const Text('삭제'),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              SizedBox(
+              Container(
                 height: 200,
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.time,
-                  initialDateTime: selectedTime,
-                  use24hFormat: false,
-                  onDateTimeChanged: (newTime) {
-                    setState(() => selectedTime = newTime);
-                  },
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: SizedBox(
+                  height: 200,
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.time,
+                    initialDateTime: selectedTime,
+                    use24hFormat: false,
+                    onDateTimeChanged: (newTime) {
+                      setState(() {
+                        isEditTriggered = true;
+                        selectedTime = newTime;
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -124,17 +154,7 @@ class _EditScheduleBottomSheetState extends State<EditScheduleBottomSheet> {
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
-                  onPressed: () async {
-                    await Get.find<ScheduleController>().replaceOne(
-                      widget.schedule.id,
-                      selectedTime,
-                      selectedWeekdaysIndex.toList(),
-                    );
-                    if (!context.mounted) {
-                      return;
-                    }
-                    Navigator.pop(context);
-                  },
+                  onPressed: isEditTriggered ? () => _handleOnSave() : null,
                   child: const Text('저장'),
                 ),
               ),

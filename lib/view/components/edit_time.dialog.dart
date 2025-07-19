@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../model/schedule.model.dart';
+import '../../model/schedule.model.dart';
 
 class EditTimeDialog extends StatefulWidget {
   final DateTime day;
@@ -20,6 +20,7 @@ class EditTimeDialog extends StatefulWidget {
 }
 
 class _EditTimeDialogState extends State<EditTimeDialog> {
+  bool isEditTriggered = false;
   late DateTime selectedTime;
 
   @override
@@ -34,6 +35,11 @@ class _EditTimeDialogState extends State<EditTimeDialog> {
     );
   }
 
+  Future<void> _handleOnSave() async {
+    Navigator.pop(context, selectedTime);
+    await widget.onSave(widget.schedule, selectedTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -44,16 +50,15 @@ class _EditTimeDialogState extends State<EditTimeDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('시간 수정'),
-            const SizedBox(height: 20),
             SizedBox(
               height: 200,
               child: CupertinoDatePicker(
                 mode: CupertinoDatePickerMode.time,
                 initialDateTime: selectedTime,
-                use24hFormat: true,
+                use24hFormat: false,
                 onDateTimeChanged: (DateTime newTime) {
                   setState(() {
+                    isEditTriggered = true;
                     selectedTime = DateTime(
                       widget.day.year,
                       widget.day.month,
@@ -71,10 +76,7 @@ class _EditTimeDialogState extends State<EditTimeDialog> {
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await widget.onSave(widget.schedule, selectedTime);
-                  },
+                  onPressed: isEditTriggered ? () => _handleOnSave() : null,
                   child: const Text('저장'),
                 ),
               ),

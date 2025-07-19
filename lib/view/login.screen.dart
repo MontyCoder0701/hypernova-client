@@ -37,14 +37,24 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const Expanded(
-              child: Center(
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 142),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Heyring'),
-                    SizedBox(height: 12),
-                    Text('편하고 부담없는\nAI 전화영어', textAlign: TextAlign.center),
+                    Text(
+                      'Heyring',
+                      style: TextStyle(fontSize: 32),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      '편하고 부담없는\nAI 전화영어',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -55,17 +65,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: TextFormField(
                   controller: _controller,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '아이디를 입력해주세요.';
